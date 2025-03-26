@@ -8,8 +8,21 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+var connectionString = builder.Configuration.GetConnectionString("CountriesDb");
+
 builder.Services.AddDbContext<CountryContext>(options =>
-    options.UseSqlServer(builder.Configuration.GetConnectionString("CountriesDb")));
+    options.UseSqlServer(connectionString));
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: "_myAllowSpecificOrigins",
+                      policy =>
+                      {
+                          policy.AllowAnyOrigin();
+                          policy.AllowAnyHeader();
+                          policy.AllowAnyMethod();
+                      });
+});
 
 var app = builder.Build();
 
