@@ -1,4 +1,4 @@
-namespace AspNetApi
+namespace Weather.Api
 {
     public class WeatherForecast
     {
