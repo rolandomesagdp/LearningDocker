@@ -1,18 +1,31 @@
 services:
-  sql:
-    image: "mcr.microsoft.com/mssql/server:2022-latest"
-    container_name: countries_sql_server
-    ports:
-      - "1433:1433" 
-    environment:
-      - ACCEPT_EULA=y
-      - MSSQL_SA_PASSWORD=A&VeryComplex123Password
-      - MSSQL_PID=Express
-  web_api:
-    image: countries_api_image:latest
-    container_name: countries_api
-    depends_on: 
-        - sql
-    ports:
-      - "5000:8080"
+    countries_sql_db:
+        image: "mcr.microsoft.com/mssql/server:2022-latest"
+        container_name: countries_sql_server
+        ports:
+            - "1433:1433" 
+        environment:
+          - ACCEPT_EULA=y
+          - MSSQL_SA_PASSWORD=A&VeryComplex123Password
+          - MSSQL_PID=Express
+    countries_api:
+        build:
+            context: src/Countries.Api
+            dockerfile: ./Dockerfile
+        image: countries_api_image:latest
+        container_name: countries_api
+        depends_on: 
+            - sql
+        ports:
+            - "5000:8080"
+    weather_api:
+        build:
+            context: .
+            dockerfile: ./src/Weather.Api/Dockerfile
+        image: weather_api_image:latest
+        container_name: weather_api
+        depends_on:
+            - countries_api
+        ports:
+            - "32771:8080"
   
