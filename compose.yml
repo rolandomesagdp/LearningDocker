@@ -27,5 +27,5 @@ services:
         depends_on:
             - countries_api
         ports:
-            - "32771:8080"
+            - "32770:8080"
   
