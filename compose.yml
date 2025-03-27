@@ -9,20 +9,14 @@ services:
           - MSSQL_SA_PASSWORD=A&VeryComplex123Password
           - MSSQL_PID=Express
     countries_api:
-        build:
-            context: .
-            dockerfile: ./src/Countries.Api/Dockerfile
-        image: countries_api_image:latest
+        image: rolandomesagdp/country_api:latest
         environment:
             - "ConnectionStrings:CountriesDb=Server=countries_sql_server,1433;Database=CountriesDb;User Id=sa;Password=A&VeryComplex123Password;Encrypt=false;TrustServerCertificate=true;MultipleActiveResultSets=true"
         container_name: countries_api_container
         depends_on: 
             - countries_sql_db
     weather_api:
-        build:
-            context: .
-            dockerfile: ./src/Weather.Api/Dockerfile
-        image: weather_api_image:latest
+        image: rolandomesagdp/weather_api:latest
         environment:
             - "Endpoints:CountryApiDomainName=http://countries_api:8080"
         container_name: weather_api_container
