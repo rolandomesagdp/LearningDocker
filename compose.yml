@@ -10,12 +10,12 @@ services:
           - MSSQL_PID=Express
     countries_api:
         build:
-            context: src/Countries.Api
-            dockerfile: ./Dockerfile
+            context: .
+            dockerfile: ./src/Countries.Api/Dockerfile
         image: countries_api_image:latest
         container_name: countries_api
         depends_on: 
-            - sql
+            - countries_sql_db
         ports:
             - "5000:8080"
     weather_api:
