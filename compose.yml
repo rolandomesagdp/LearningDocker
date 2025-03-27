@@ -18,8 +18,6 @@ services:
         container_name: countries_api_container
         depends_on: 
             - countries_sql_db
-        ports:
-            - "5000:8080"
     weather_api:
         build:
             context: .
