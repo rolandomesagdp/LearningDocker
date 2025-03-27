@@ -25,6 +25,7 @@ services:
         image: weather_api_image:latest
         container_name: weather_api
         depends_on:
+            - countries_sql_db
             - countries_api
         ports:
             - "32770:8080"

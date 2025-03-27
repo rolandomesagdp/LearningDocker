@@ -1,6 +1,7 @@
 using Countries.Api.Context;
 using Countries.Api.Countries;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Countries.Api.Controllers
 {
@@ -8,13 +9,10 @@ namespace Countries.Api.Controllers
     [Route("[controller]")]
     public class CountryController : ControllerBase
     {
-
-        private readonly ILogger<CountryController> _logger;
         private readonly CountryContext countryContext;
 
-        public CountryController(ILogger<CountryController> logger, CountryContext countryContext)
+        public CountryController(CountryContext countryContext)
         {
-            _logger = logger;
             this.countryContext = countryContext;
         }
 
@@ -23,6 +21,13 @@ namespace Countries.Api.Controllers
         {
             var countries = countryContext.Countries.ToArray();
             return countries;
+        }
+
+        [HttpGet("code/{countryCode}")]
+        public async Task<IActionResult> GetCountryByCode(string countryCode = "SP")
+        {
+            var country = await countryContext.Countries.Where(x => x.CountryCode == countryCode).FirstOrDefaultAsync();
+            return Ok(country);
         }
     }
 }

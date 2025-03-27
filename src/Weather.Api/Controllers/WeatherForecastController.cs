@@ -1,4 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+using Weather.Api.Countries;
+using Weather.Api.Forecast;
 
 namespace Weather.Api.Controllers
 {
@@ -6,28 +9,50 @@ namespace Weather.Api.Controllers
     [Route("[controller]")]
     public class WeatherForecastController : ControllerBase
     {
-        private static readonly string[] Summaries = new[]
-        {
-            "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-        };
+        private readonly IConfiguration configuration;
 
-        private readonly ILogger<WeatherForecastController> _logger;
-
-        public WeatherForecastController(ILogger<WeatherForecastController> logger)
+        public WeatherForecastController(IConfiguration configuration)
         {
-            _logger = logger;
+            this.configuration = configuration;
         }
 
-        [HttpGet(Name = "GetWeatherForecast")]
-        public IEnumerable<WeatherForecast> Get()
+        [HttpGet("country/{countryCode}")]
+        public async Task<IActionResult> GetByCountry(string countryCode = "SP")
         {
-            return Enumerable.Range(1, 5).Select(index => new WeatherForecast
+            try
             {
-                Date = DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-                TemperatureC = Random.Shared.Next(-20, 55),
-                Summary = Summaries[Random.Shared.Next(Summaries.Length)]
-            })
-            .ToArray();
+                var countryApiBaseUrl = configuration["Endpoints:CountryApiDomainName"];
+                HttpResponseMessage result;
+
+                // demo code, ignore the direct creation of the HttpClient here!
+                using (var client = new HttpClient())
+                {
+                    var url = string.Concat(countryApiBaseUrl, $"/country/code/{countryCode}");
+
+                    var request = new HttpRequestMessage(HttpMethod.Get, url);
+
+                    result = await client.SendAsync(request);
+                }
+
+                if (result.IsSuccessStatusCode)
+                {
+                    var payload = await result.Content.ReadAsStringAsync();
+
+                    var country = JsonConvert.DeserializeObject<Country>(payload);
+
+                    var forecast = new ForecastGenerator(country).GenerateForecast();
+
+                    return Ok(forecast);
+                }
+                else
+                {
+                    throw new Exception($"The call to the country api returned a status code of {result.StatusCode.ToString()}");
+                }
+            }
+            catch(Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
